@@ -1,0 +1,28 @@
+{
+  "name": "data-store",
+  "module": "src/index.ts",
+  "type": "module",
+  "exports": {
+    "import": "./src/index.ts",
+    "types": "./src/index.ts"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.5.3",
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@sroussey/transformers": "^2.14.3",
+    "node-html-markdown": "^1.3.0",
+    "puppeteer": "^21.10.0",
+    "sqlite-vss": "^0.1.2"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "node-html-markdown@1.3.0": "patches/node-html-markdown@1.3.0.patch",
+      "@sroussey/transformers@2.14.3": "patches/@sroussey__transformers@2.14.3.patch"
+    }
+  }
+}

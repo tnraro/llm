@@ -1,0 +1,39 @@
+diff --git a/dist/main.js b/dist/main.js
+index e7f88a7a20d4f9e3610eaab5d063ed26f4c3150b..e0533ca335f4e27cfa02893d971c6d951844db49 100644
+--- a/dist/main.js
++++ b/dist/main.js
+@@ -23,14 +23,14 @@ class NodeHtmlMarkdown {
+         const ignoredElements = (_b = (_a = this.options.ignore) === null || _a === void 0 ? void 0 : _a.concat(config_1.defaultIgnoreElements)) !== null && _b !== void 0 ? _b : config_1.defaultIgnoreElements;
+         const blockElements = (_d = (_c = this.options.blockElements) === null || _c === void 0 ? void 0 : _c.concat(config_1.defaultBlockElements)) !== null && _d !== void 0 ? _d : config_1.defaultBlockElements;
+         /* Setup Translator Bases */
+-        ignoredElements === null || ignoredElements === void 0 ? void 0 : ignoredElements.forEach(el => {
+-            this.translators.set(el, { ignore: true, recurse: false });
+-            this.codeBlockTranslators.set(el, { ignore: true, recurse: false });
+-        });
+         blockElements === null || blockElements === void 0 ? void 0 : blockElements.forEach(el => {
+             this.translators.set(el, { surroundingNewlines: 2 });
+             this.codeBlockTranslators.set(el, { surroundingNewlines: 2 });
+         });
++        ignoredElements === null || ignoredElements === void 0 ? void 0 : ignoredElements.forEach(el => {
++            this.translators.set(el, { ignore: true, recurse: false });
++            this.codeBlockTranslators.set(el, { ignore: true, recurse: false });
++        });
+         /* Add and merge bases with default and custom translator configs */
+         for (const [elems, cfg] of Object.entries(Object.assign(Object.assign({}, config_1.defaultTranslators), customTranslators)))
+             this.translators.set(elems, cfg, true);
+diff --git a/dist/utilities.js b/dist/utilities.js
+index b68d42827deb50794dc94717b2f1c9344abfe4e8..d471c342dbb3d965925f24d6f9982a2451f4c390 100644
+--- a/dist/utilities.js
++++ b/dist/utilities.js
+@@ -47,8 +47,9 @@ function tagSurround(content, surroundStr) {
+     // If un-escaped surroundStr already occurs, remove all instances
+     // See: https://github.com/crosstype/node-html-markdown/issues/18
+     const nestedSurroundStrIndex = content.indexOf(surroundStr);
+-    if (nestedSurroundStrIndex >= 0)
+-        content = content.replace(new RegExp(`([^\\\\])\\${surroundStr.split('').join('\\')}`, 'gm'), '$1');
++    if (surroundStr.length > 0)
++        if (nestedSurroundStrIndex >= 0)
++            content = content.replace(new RegExp(`([^\\\\])\\${surroundStr.split('').join('\\')}`, 'gm'), '$1');
+     const lines = splitSpecial(content);
+     let res = '';
+     for (const { text, newLineChar } of lines) {

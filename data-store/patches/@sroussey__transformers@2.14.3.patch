@@ -1,0 +1,24 @@
+diff --git a/src/pipelines.js b/src/pipelines.js
+index 161094270462754ff623860d817a2459a29d39e4..f581fbed57b29da06ad521204ec0d02b8ab22b65 100644
+--- a/src/pipelines.js
++++ b/src/pipelines.js
+@@ -1181,13 +1181,18 @@ export class FeatureExtractionPipeline extends (/** @type {new (options: TextPip
+         // Run model
+         const outputs = await this.model(model_inputs)
+ 
++        if (outputs.sentence_embedding && outputs.sentence_embedding.dims.length === 2) {
++            outputs.sentence_embedding.dims[2] = outputs.sentence_embedding.dims[1]
++            outputs.sentence_embedding.dims[1] = 1
++        }
++
+         // TODO: Provide warning to the user that they might be using model which was not exported
+         // specifically for feature extraction
+         // console.log(this.model.config)
+         // console.log(outputs)
+ 
+         /** @type {Tensor} */
+-        let result = outputs.last_hidden_state ?? outputs.logits;
++        let result = outputs.last_hidden_state ?? outputs.logits ?? outputs.sentence_embedding;
+         if (pooling === 'none') {
+             // Skip pooling
+         } else if (pooling === 'mean') {
