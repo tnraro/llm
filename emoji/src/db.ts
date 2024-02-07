@@ -17,10 +17,16 @@ export class Db {
   #insertEmojiVss;
   #insert;
   #search;
+  #isInitialRun;
+  readonly isInitialRun;
   constructor(filename?: string) {
     this.#db = new Database(filename);
     load(this.#db);
     this.#db.exec("PRAGMA journal_mode = WAL;");
+    this.#isInitialRun = this.#db.prepare(
+      "select name from sqlite_master where type='table' and name='emoji'",
+    );
+    this.isInitialRun = this.#isInitialRun.get() == null;
     this.#db.exec(`
       create table if not exists emoji (
         id integer primary key autoincrement,
@@ -67,6 +73,9 @@ export class Db {
       $ko: embedding,
       $top_k: topK,
     }) as Row[];
+  }
+  exists() {
+    return this.#isInitialRun.get() != null;
   }
   [Symbol.dispose]() {
     this.#db.close();

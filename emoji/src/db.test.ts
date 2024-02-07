@@ -56,3 +56,9 @@ test("search", () => {
     },
   ]);
 });
+
+test("load", () => {
+  using db = new Db();
+  expect(db.isInitialRun).toBe(true);
+  expect(db.exists()).toBe(true);
+});
