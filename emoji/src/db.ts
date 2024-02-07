@@ -2,11 +2,11 @@ import { Database } from "bun:sqlite";
 import { load } from "sqlite-vss";
 
 interface Emoji {
-  unicode: string;
+  emoji: string;
   ko: { description: string; embedding: Float32Array };
 }
 interface Row {
-  unicode: string;
+  emoji: string;
   ko: string;
   distance: number;
 }
@@ -31,7 +31,7 @@ export class Db {
     this.#db.exec(`
       create table if not exists emoji (
         id integer primary key autoincrement,
-        unicode text not null unique,
+        emoji text not null unique,
         ko text not null
       );
       create virtual table if not exists emoji_vss using vss0(
@@ -39,14 +39,14 @@ export class Db {
       );
     `);
     this.#insertEmoji = this.#db.query(
-      "insert into emoji (unicode, ko) values ($unicode, $ko) returning id",
+      "insert into emoji (emoji, ko) values ($emoji, $ko) returning id",
     );
     this.#insertEmojiVss = this.#db.query(
       "insert into emoji_vss(rowid, ko) values ($id, $ko)",
     );
     this.#insert = this.#db.transaction((row: Emoji) => {
       const { id } = this.#insertEmoji.get({
-        $unicode: row.unicode,
+        $emoji: row.emoji,
         $ko: row.ko.description,
       }) as { id: number };
       this.#insertEmojiVss.run({
@@ -57,7 +57,7 @@ export class Db {
     this.#insertBulk = this.#db.transaction((rows: Emoji[]) => {
       for (const row of rows) {
         const { id } = this.#insertEmoji.get({
-          $unicode: row.unicode,
+          $emoji: row.emoji,
           $ko: row.ko.description,
         }) as { id: number };
         this.#insertEmojiVss.run({
@@ -73,7 +73,7 @@ export class Db {
         where vss_search(ko, $ko)
         limit $top_k
       )
-      select unicode, ko, distance
+      select emoji, ko, distance
       from emoji
       join similar_emoji on id=rowid
     `);

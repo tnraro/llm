@@ -44,8 +44,8 @@ const f = async (word: string) => {
   const e = await embedding.get(word);
   const row = db.search(e)[0];
   if (row == null) throw new Error(`no matching emoji for "${word}"`);
-  emojiMap.set(word, row.unicode);
-  return `${row.unicode} ${word}`;
+  emojiMap.set(word, row.emoji);
+  return `${row.emoji} ${word}`;
 };
 
 const epoch = async () => {

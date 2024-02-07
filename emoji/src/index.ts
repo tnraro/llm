@@ -10,7 +10,7 @@ if (db.isInitialRun) {
   const rows = [];
   for (const { emoji, name } of emojis) {
     rows.push({
-      unicode: emoji,
+      emoji,
       ko: {
         description: name,
         embedding: await embedding.get(name),
@@ -30,6 +30,6 @@ console.log("input:", query);
 console.log(
   db
     .search(pray, 5)
-    .map((x) => `  ${x.unicode}\t${x.ko}`)
+    .map((x) => `  ${x.emoji}\t${x.ko}`)
     .join("\n"),
 );
