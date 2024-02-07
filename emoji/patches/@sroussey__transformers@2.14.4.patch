@@ -1,0 +1,19 @@
+diff --git a/src/pipelines.js b/src/pipelines.js
+index a9af251cb62795f2d427f3a08c7d8cfd55fd272d..5d6a8dd025a3c5a1042c0480661ddc82b69b0560 100644
+--- a/src/pipelines.js
++++ b/src/pipelines.js
+@@ -1185,9 +1185,12 @@ export class FeatureExtractionPipeline extends (/** @type {new (options: TextPip
+         // specifically for feature extraction
+         // console.log(this.model.config)
+         // console.log(outputs)
+-
++        if (outputs.sentence_embedding && outputs.sentence_embedding.dims.length === 2) {
++            outputs.sentence_embedding.dims[2] = outputs.sentence_embedding.dims[1]
++            outputs.sentence_embedding.dims[1] = 1
++        }
+         /** @type {Tensor} */
+-        let result = outputs.last_hidden_state ?? outputs.logits;
++        let result = outputs.last_hidden_state ?? outputs.logits ?? outputs.sentence_embedding;;
+         if (pooling === 'none') {
+             // Skip pooling
+         } else if (pooling === 'mean') {

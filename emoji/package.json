@@ -14,8 +14,18 @@
     "@types/bun": "^1.0.5"
   },
   "dependencies": {
+    "@sroussey/transformers": "^2.14.4",
     "cldr-annotations-derived-modern": "^44.1.0",
     "cldr-annotations-modern": "^44.1.0",
     "sqlite-vss": "^0.1.2"
+  },
+  "pnpm": {
+    "overrides": {
+      "onnxruntime-node@1.17.0": "1.16.3",
+      "onnxruntime-web@1.17.0": "1.16.3"
+    },
+    "patchedDependencies": {
+      "@sroussey/transformers@2.14.4": "patches/@sroussey__transformers@2.14.4.patch"
+    }
   }
 }
