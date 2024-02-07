@@ -34,6 +34,9 @@ devDependencies:
   '@types/bun':
     specifier: ^1.0.5
     version: 1.0.5
+  mitata:
+    specifier: ^0.1.8
+    version: 0.1.8
 
 packages:
 
@@ -465,6 +468,10 @@ packages:
     dependencies:
       yallist: 4.0.0
     dev: false
+
+  /mitata@0.1.8:
+    resolution: {integrity: sha512-q+tTmAMdyT69SfwvOkMMCCzLhqoPY9OmbZ2nTDwFopTYMKl9HLRA+XfDXydGaRzVEYehkyfP1pFYoXzE6jVRKw==}
+    dev: true
 
   /onnxruntime-common@1.16.3:
     resolution: {integrity: sha512-ZZfFzEqBf6YIGwB9PtBLESHI53jMXA+/hn+ACVUbEfPuK2xI5vMGpLPn+idpwCmHsKJNRzRwqV12K+6TQj6tug==}
