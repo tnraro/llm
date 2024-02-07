@@ -1,18 +1,19 @@
-import { emojis } from "./cldr";
 import { Db } from "./db";
 import { createTextEmbedding } from "./embedding";
+import { getEmojis } from "./emoji";
 using db = new Db("./emoji.sqlite");
 using embedding = await createTextEmbedding();
 
 if (db.isInitialRun) {
+  const emojis = await getEmojis();
   console.time("prepare data");
   const rows = [];
-  for (const [emoji, ko] of emojis) {
+  for (const { emoji, name } of emojis) {
     rows.push({
       unicode: emoji,
       ko: {
-        description: ko,
-        embedding: await embedding.get(ko),
+        description: name,
+        embedding: await embedding.get(name),
       },
     });
   }
@@ -23,10 +24,12 @@ if (db.isInitialRun) {
   console.timeEnd("insert data");
 }
 
-const pray = await embedding.get("큐피드");
+const query = process.argv.slice(2).join(" ");
+const pray = await embedding.get(query);
+console.log("input:", query);
 console.log(
   db
     .search(pray, 5)
-    .map((x) => `${x.unicode},${x.ko}`)
-    .join(","),
+    .map((x) => `  ${x.unicode}\t${x.ko}`)
+    .join("\n"),
 );
