@@ -16,6 +16,7 @@ export class Db {
   #insertEmoji;
   #insertEmojiVss;
   #insert;
+  #insertBulk;
   #search;
   #isInitialRun;
   readonly isInitialRun;
@@ -53,6 +54,18 @@ export class Db {
         $ko: row.ko.embedding,
       });
     });
+    this.#insertBulk = this.#db.transaction((rows: Emoji[]) => {
+      for (const row of rows) {
+        const { id } = this.#insertEmoji.get({
+          $unicode: row.unicode,
+          $ko: row.ko.description,
+        }) as { id: number };
+        this.#insertEmojiVss.run({
+          $id: id,
+          $ko: row.ko.embedding,
+        });
+      }
+    });
     this.#search = this.#db.query(`
       with similar_emoji as (
         select rowid, distance
@@ -67,6 +80,9 @@ export class Db {
   }
   insert(row: Emoji) {
     this.#insert(row);
+  }
+  insertBulk(rows: Emoji[]) {
+    this.#insertBulk(rows);
   }
   search(embedding: Float32Array, topK = 1) {
     return this.#search.all({
