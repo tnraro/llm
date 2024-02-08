@@ -80,7 +80,7 @@ const epoch = async () => {
   if (word.length > 53)
     throw new RangeError(`word.length(${word.length}) > 53`);
   if (!/^[가-힣]+( [가-힣]+)*$/.test(word))
-    throw new Error(`no Korean in "${word}"`);
+    throw new Error(`invalid Korean in "${word}"`);
   words.add(word);
   console.log(`                         = ${await f(word)}`);
 };
