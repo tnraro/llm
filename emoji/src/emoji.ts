@@ -1,17 +1,24 @@
-import { annotationsDerived } from "cldr-annotations-derived-modern/annotationsDerived/en/annotations.json";
-import { annotations } from "cldr-annotations-modern/annotations/en/annotations.json";
+import { annotationsDerived } from "cldr-annotations-derived-modern/annotationsDerived/ko/annotations.json";
+import { annotations } from "cldr-annotations-modern/annotations/ko/annotations.json";
 
-export const codePointsToString = (cps: string[]) => {
+export const codePointsToEmoji = (cps: string[]) => {
   return String.fromCodePoint(...cps.map((cp) => parseInt(cp, 16)));
 };
-export const getName = (emoji: string) => {
+const getAnnotation = (
+  emoji: string,
+): { default: string[]; tts: string[] } | undefined => {
   return (
-    annotations.annotations[emoji as keyof typeof annotations.annotations]
-      ?.tts[0] ??
+    annotations.annotations[emoji as keyof typeof annotations.annotations] ??
     annotationsDerived.annotations[
       emoji as keyof typeof annotationsDerived.annotations
-    ]?.tts[0]
+    ]
   );
+};
+export const getName = (emoji: string) => {
+  return getAnnotation(emoji)?.tts[0];
+};
+export const getNames = (emoji: string) => {
+  return getAnnotation(emoji)?.default.join(". ");
 };
 
 export function* parse(text: string) {
@@ -20,14 +27,14 @@ export function* parse(text: string) {
   );
   for (const match of matches) {
     if (match.groups == null) continue;
-    const { code_point, type_field, short_name, is_range, is_seq } =
-      match.groups;
+    const { code_point, type_field, is_range, is_seq } = match.groups;
     if (is_range != null) {
       const [begin, end] = code_point.split("..").map((cp) => parseInt(cp, 16));
       for (let cp = begin; cp <= end; cp++) {
         const emoji = String.fromCodePoint(cp);
         const name = getName(emoji);
-        if (name == null) throw new Error(`Unknown emoji: ${emoji} ${cp}`);
+        if (name == null)
+          throw new Error(`Unknown emoji: ${emoji} ${cp.toString(16)}`);
         yield {
           emoji,
           type: type_field,
@@ -35,16 +42,33 @@ export function* parse(text: string) {
         };
       }
     } else if (is_seq != null) {
+      const cps = code_point.split(/\s+/g).map((cp) => parseInt(cp, 16));
+      const emoji = String.fromCodePoint(...cps);
+
+      const name = getName(
+        (() => {
+          const _cps = cps.filter(
+            (cp) => cp !== 0xfe0f /* VARIATION SELECTOR-16 */,
+          );
+          return String.fromCodePoint(..._cps);
+        })(),
+      );
+      if (name == null)
+        throw new Error(`Unknown emoji: ${emoji} ${code_point}`);
       yield {
-        emoji: codePointsToString(code_point.split(/\s+/g)),
+        emoji,
         type: type_field,
-        name: short_name,
+        name,
       };
     } else {
+      const emoji = codePointsToEmoji([code_point]);
+      const name = getName(emoji);
+      if (name == null)
+        throw new Error(`Unknown emoji: ${emoji} ${code_point}`);
       yield {
-        emoji: codePointsToString([code_point]),
+        emoji,
         type: type_field,
-        name: short_name,
+        name,
       };
     }
   }
