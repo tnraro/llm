@@ -36,7 +36,6 @@ const model = new LlamaModel({
     "WestLake-7B-v2-laser-truthy-dpo.q5_k_m.gguf",
   ),
   gpuLayers: 32,
-  useMlock: true,
 });
 
 const context = new LlamaContext({ model, contextSize: 1024 });
@@ -64,7 +63,7 @@ const f = async (word: string) => {
     return `${emojiMap.get(word)} ${word}`;
   }
   const e = await embedding.get(word);
-  const row = db.search(e)[0];
+  const row = db.search(e, 3)[0];
   if (row == null) throw new Error(`no matching emoji for "${word}"`);
   emojiMap.set(word, row.emoji);
   return `${row.emoji} ${word}`;
