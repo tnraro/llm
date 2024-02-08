@@ -10,7 +10,7 @@ import { Db } from "./db";
 import { config } from "./embedding/config";
 import { createTransformersTextEmbedding } from "./embedding/transformers-text-embedding";
 
-const { LLAMA_CPP_MODELS_PATH } = import.meta.env;
+const { LLAMA_CPP_MODELS_PATH, EMOJI_DATABASE_PATH } = import.meta.env;
 if (LLAMA_CPP_MODELS_PATH == null)
   throw new Error("no env: LLAMA_CPP_MODELS_PATH");
 const embeddingConfig = config["Xenova/paraphrase-multilingual-MiniLM-L12-v2"];
@@ -19,7 +19,7 @@ using embedding = await createTransformersTextEmbedding(
   embeddingConfig.dimensions,
 );
 using db = new Db({
-  filename: "./emoji3.sqlite",
+  filename: EMOJI_DATABASE_PATH,
   dimensions: embedding.dimensions,
 });
 

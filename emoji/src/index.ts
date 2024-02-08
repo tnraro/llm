@@ -2,13 +2,14 @@ import { Db } from "./db";
 import { config } from "./embedding/config";
 import { createTransformersTextEmbedding } from "./embedding/transformers-text-embedding";
 import { getEmojis } from "./emoji";
+const { EMOJI_DATABASE_PATH } = import.meta.env;
 const embeddingConfig = config["Xenova/paraphrase-multilingual-MiniLM-L12-v2"];
 using embedding = await createTransformersTextEmbedding(
   embeddingConfig.name,
   embeddingConfig.dimensions,
 );
 using db = new Db({
-  filename: "./emoji3.sqlite",
+  filename: EMOJI_DATABASE_PATH,
   dimensions: embedding.dimensions,
 });
 
