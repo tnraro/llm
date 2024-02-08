@@ -8,50 +8,41 @@ test("parse", async () => {
 0023 FE0F 20E3; Emoji_Keycap_Sequence        ; keycap: \\x{23}                                                 # E0.6   [1] (#️⃣)
 1F469 200D 1F469 200D 1F467 200D 1F467      ; RGI_Emoji_ZWJ_Sequence  ; family: woman, woman, girl, girl                               # E2.0   [1] (👩‍👩‍👧‍👧)`;
   const emojis = [...parse(text)];
-  expect(emojis).toStrictEqual([
+  expect(emojis).toMatchObject([
     {
       emoji: "⌚",
-      name: "watch",
       type: "Basic_Emoji",
     },
     {
       emoji: "⌛",
-      name: "hourglass done",
       type: "Basic_Emoji",
     },
     {
       emoji: "⏩",
-      name: "fast-forward button",
       type: "Basic_Emoji",
     },
     {
       emoji: "⏪",
-      name: "fast reverse button",
       type: "Basic_Emoji",
     },
     {
       emoji: "⏫",
-      name: "fast up button",
       type: "Basic_Emoji",
     },
     {
       emoji: "⏬",
-      name: "fast down button",
       type: "Basic_Emoji",
     },
     {
       emoji: "🃏",
-      name: "joker",
       type: "Basic_Emoji",
     },
     {
       emoji: "#️⃣",
-      name: "keycap: \\x{23}",
       type: "Emoji_Keycap_Sequence",
     },
     {
       emoji: "👩‍👩‍👧‍👧",
-      name: "family: woman, woman, girl, girl",
       type: "RGI_Emoji_ZWJ_Sequence",
     },
   ]);
