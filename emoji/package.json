@@ -6,7 +6,8 @@
   "scripts": {
     "start": "bun run src/index.ts",
     "test": "bun test",
-    "check": "biome check . --apply"
+    "check": "biome check . --apply",
+    "bench": "bun run src/**/*.bench.ts"
   },
   "keywords": [],
   "author": "",
@@ -20,7 +21,7 @@
     "@sroussey/transformers": "^2.14.4",
     "cldr-annotations-derived-modern": "^44.1.0",
     "cldr-annotations-modern": "^44.1.0",
-    "node-llama-cpp": "^2.8.6",
+    "node-llama-cpp": "3.0.0-beta.9",
     "sqlite-vss": "^0.1.2"
   },
   "pnpm": {

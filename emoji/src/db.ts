@@ -20,8 +20,11 @@ export class Db {
   #search;
   #isInitialRun;
   readonly isInitialRun;
-  constructor(filename?: string) {
-    this.#db = new Database(filename);
+  constructor(options: { filename?: string; dimensions: number }) {
+    const _options = {
+      ...options,
+    };
+    this.#db = new Database(_options.filename);
     load(this.#db);
     this.#db.exec("PRAGMA journal_mode = WAL;");
     this.#isInitialRun = this.#db.prepare(
@@ -35,7 +38,7 @@ export class Db {
         ko text not null
       );
       create virtual table if not exists emoji_vss using vss0(
-        ko(512)
+        ko(${_options.dimensions})
       );
     `);
     this.#insertEmoji = this.#db.query(

@@ -5,11 +5,11 @@ const createEmbedding = (value: number) =>
   new Float32Array(Array.from({ length: 512 }, () => value));
 
 test("init", () => {
-  using db = new Db();
+  using db = new Db({ dimensions: 512 });
 });
 
 test("insert", () => {
-  using db = new Db();
+  using db = new Db({ dimensions: 512 });
   db.insert({
     emoji: "📒",
     ko: { description: "노트", embedding: createEmbedding(0) },
@@ -17,7 +17,7 @@ test("insert", () => {
 });
 
 test("search", () => {
-  using db = new Db();
+  using db = new Db({ dimensions: 512 });
   db.insert({
     emoji: "📒",
     ko: { description: "노트", embedding: createEmbedding(0) },
@@ -58,7 +58,7 @@ test("search", () => {
 });
 
 test("load", () => {
-  using db = new Db();
+  using db = new Db({ dimensions: 512 });
   expect(db.isInitialRun).toBe(true);
   expect(db.exists()).toBe(true);
 });

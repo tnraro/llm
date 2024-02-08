@@ -1,8 +1,16 @@
 import { Db } from "./db";
-import { createTextEmbedding } from "./embedding";
+import { config } from "./embedding/config";
+import { createTransformersTextEmbedding } from "./embedding/transformers-text-embedding";
 import { getEmojis } from "./emoji";
-using db = new Db("./emoji.sqlite");
-using embedding = await createTextEmbedding();
+const embeddingConfig = config["Xenova/paraphrase-multilingual-MiniLM-L12-v2"];
+using embedding = await createTransformersTextEmbedding(
+  embeddingConfig.name,
+  embeddingConfig.dimensions,
+);
+using db = new Db({
+  filename: "./emoji3.sqlite",
+  dimensions: embedding.dimensions,
+});
 
 if (db.isInitialRun) {
   const emojis = await getEmojis();
@@ -24,12 +32,14 @@ if (db.isInitialRun) {
   console.timeEnd("insert data");
 }
 
-const query = process.argv.slice(2).join(" ");
-const pray = await embedding.get(query);
+const query = process.argv.slice(2).join(" ").trim();
+if (query.length === 0)
+  throw new Error("no input:\nUsage:\n  pnpm start [query]");
+const result = await embedding.get(query);
 console.log("input:", query);
 console.log(
   db
-    .search(pray, 5)
-    .map((x) => `  ${x.emoji}\t${x.ko}`)
+    .search(result, 10)
+    .map((x) => `  ${x.distance}\t${x.emoji}\t${x.ko}`)
     .join("\n"),
 );

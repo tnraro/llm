@@ -1,15 +1,36 @@
 import { join } from "path";
-import { LlamaChatSession, LlamaContext, LlamaModel } from "node-llama-cpp";
+import {
+  LlamaChatSession,
+  LlamaContext,
+  LlamaLogLevel,
+  LlamaModel,
+  getLlama,
+} from "node-llama-cpp";
 import { Db } from "./db";
-import { createTextEmbedding } from "./embedding";
+import { config } from "./embedding/config";
+import { createTransformersTextEmbedding } from "./embedding/transformers-text-embedding";
 
 const { LLAMA_CPP_MODELS_PATH } = import.meta.env;
 if (LLAMA_CPP_MODELS_PATH == null)
   throw new Error("no env: LLAMA_CPP_MODELS_PATH");
-using db = new Db("./emoji.sqlite");
-using embedding = await createTextEmbedding();
+const embeddingConfig = config["Xenova/paraphrase-multilingual-MiniLM-L12-v2"];
+using embedding = await createTransformersTextEmbedding(
+  embeddingConfig.name,
+  embeddingConfig.dimensions,
+);
+using db = new Db({
+  filename: "./emoji3.sqlite",
+  dimensions: embedding.dimensions,
+});
 
+const llama = await getLlama({
+  cuda: true,
+  progressLogs: false,
+  logLevel: LlamaLogLevel.warn,
+  existingPrebuiltBinaryMustMatchBuildOptions: true,
+});
 const model = new LlamaModel({
+  llama,
   modelPath: join(
     LLAMA_CPP_MODELS_PATH,
     "WestLake-7B-v2-laser-truthy-dpo.q5_k_m.gguf",
@@ -18,15 +39,16 @@ const model = new LlamaModel({
   useMlock: true,
 });
 
-const context = new LlamaContext({ model });
+const context = new LlamaContext({ model, contextSize: 1024 });
 const session = new LlamaChatSession({
-  context,
+  contextSequence: context.getSequence(),
   systemPrompt: `As a word combination expert, you will receive two words separated by commas.
 Answer with another word similar to the two words you received.
 The word must be a valid word.
 Do not respond with any explanation other than the word.
 The word must be Korean.
 You must answer only one word.`,
+  autoDisposeSequence: true,
 });
 
 const genRandomItems = <T>(collection: Set<T>, n: number) => {
@@ -53,7 +75,7 @@ const epoch = async () => {
   console.log(`User: ${await f(w0)} + ${await f(w1)}`);
   const answer = await session.prompt(`${w0}, ${w1}`);
 
-  const word = answer.replaceAll(/\n.+/g, "").trim();
+  const word = answer.replaceAll(/(\n|\[INST\]).+/g, "").trim();
 
   if (word.length > 53)
     throw new RangeError(`word.length(${word.length}) > 53`);
@@ -63,7 +85,7 @@ const epoch = async () => {
   console.log(`                         = ${await f(word)}`);
 };
 
-for (let i = 0; i < 20; i++) {
+for (let i = 0; i < 10; i++) {
   try {
     await epoch();
   } catch (error) {
