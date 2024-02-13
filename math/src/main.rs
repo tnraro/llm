@@ -1,8 +1,10 @@
 use anyhow::Result;
 use llama_cpp::{Llama, LlamaOptions, PredictOptions};
-use regex::Regex;
+
+use problem::Problem;
 
 mod llama_cpp;
+mod problem;
 fn main() -> Result<()> {
   let system = "# IDENTITY and PURPOSE
 
@@ -39,22 +41,11 @@ You extract mathematical expression, explanation from the text content.
   };
   let question = "철수는 사과를 5개 바나나를 2개 가지고 있다. 영희가 철수에게 사과를 3개 더 줬을때, 철수가 가지고 있는 사과의 갯수는?";
   let output = llama.predict(question, predict_options)?;
-  println!("{}", question);
-  let re_no_mathematical_expression_exists = Regex::new(r"(?i:\bEinstein\b)")?;
-  if re_no_mathematical_expression_exists.is_match(&output) {
-    println!("Error: {}", output);
-  } else {
-    let re_response =
-      Regex::new(r"EXPRESSION:\s*(?<expression>[^\n]+)|ANSWER:\s*(?<answer>[^\n]+)")?;
-    for caps in re_response.captures_iter(&output) {
-      if let Some(x) = caps.get(1) {
-        println!("식: {}", x.as_str());
-      }
-      if let Some(x) = caps.get(2) {
-        println!("답: {}", x.as_str());
-      }
-    }
-  }
+  println!("질문: {}", question);
+  let problem = output.parse::<Problem>()?;
+
+  println!("식: {}", problem.expression);
+  println!("답: {}", problem.answer);
 
   Ok(())
 }
