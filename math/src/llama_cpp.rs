@@ -14,7 +14,7 @@ impl Llama {
       model_options,
     }
   }
-  pub fn predict(&self, prompt: &str, options: PredictOptions) -> Result<String> {
+  pub fn predict(&self, prompt: &str, options: &PredictOptions) -> Result<String> {
     let mut cmd = self.make_option(prompt, options);
     let output = cmd.output()?;
     let stdout = String::from_utf8(output.stdout)?;
@@ -23,9 +23,12 @@ impl Llama {
     Ok(m["response"].to_owned())
   }
   fn make_prompt(&self, prompt: &str) -> String {
-    format!("{}\n### Instruction:\n{}\n### Response:\n", &self.model_options.system, prompt)
+    format!(
+      "{}\n### Instruction:\n{}\n### Response:\n",
+      &self.model_options.system, prompt
+    )
   }
-  fn make_option(&self, prompt: &str, options: PredictOptions) -> Command {
+  fn make_option(&self, prompt: &str, options: &PredictOptions) -> Command {
     let mut cmd = Command::new("../llama.cpp/main");
     if let Some(b) = options.help {
       if b {

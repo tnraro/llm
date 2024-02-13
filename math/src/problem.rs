@@ -1,56 +1,60 @@
-use std::fmt::{Debug, Display};
-use std::str::FromStr;
+use anyhow::Result;
 
-use regex::Regex;
-use std::error::Error;
+use crate::{
+  llama_cpp::{Llama, LlamaOptions, PredictOptions},
+  predicted::Predicted,
+};
 
 pub struct Problem {
-  pub expression: String,
-  pub answer: String,
+  predict_options: PredictOptions,
+  llama: Llama,
 }
 
 impl Problem {
-  pub fn new(expression: &str, answer: &str) -> Self {
+  pub fn new(model: &str, predict_options: PredictOptions) -> Self {
+    let llama_options = LlamaOptions {
+      system: "# IDENTITY and PURPOSE
+
+You extract mathematical expression, explanation from the text content.
+
+# STEPS
+
+1. Write a mathematical expression into a section called EXPRESSION:
+2. Write a answer of the expression into a section called ANSWER:
+
+# OUTPUT INSTRUCTIONS
+
+- Only output plain text.
+- Only output \"Einstein can't solve this problem.\" if no mathematical expression exists in given text.
+- Do not explain anything in expression and answer sections.
+- Comment begins with double slash (//).
+- Do not give warnings or notes; only output the requested sections.
+- Do not use unnecessary '\\', '{', '}'.
+- Do not repeat steps, expression, or answer.
+- Do not start items with the same opening words.
+- Ensure you follow ALL these instructions when creating your output.".into(),
+      ..Default::default()
+    };
+    let llama = Llama::new(model, llama_options);
     Self {
-      expression: expression.to_owned(),
-      answer: answer.to_owned(),
+      llama,
+      predict_options,
     }
   }
-}
-
-impl FromStr for Problem {
-  type Err = ParseProblemError;
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    if Regex::new(r"(?i:\bEinstein\s+can't\s+solve\s+this\s+problem\b)")
-      .unwrap()
-      .is_match(&s)
-    {
-      return Err(ParseProblemError::Einstein(s.to_owned()));
-    }
-    let re =
-      Regex::new(r"EXPRESSION:\s*(?<expression>[^\n]+)\s*\n\s*ANSWER:\s*(?<answer>[^\n]+)\s*$")
-        .unwrap();
-    let caps = re
-      .captures(s)
-      .ok_or_else(|| ParseProblemError::Empty(s.to_owned()))?;
-    let expression = &caps["expression"];
-    let answer = &caps["answer"];
-    Ok(Problem::new(expression, answer))
+  pub fn solve(&self, problem: &str) -> Result<ProblemResult> {
+    let output = self.llama.predict(problem, &self.predict_options)?;
+    let predicted = output.parse::<Predicted>()?;
+    Ok(ProblemResult {
+      problem: problem.to_owned(),
+      predicted_expression: predicted.expression,
+      predicted_answer: predicted.answer,
+    })
   }
 }
 
 #[derive(Debug)]
-pub enum ParseProblemError {
-  Einstein(String),
-  Empty(String),
+pub struct ProblemResult {
+  pub problem: String,
+  pub predicted_expression: String,
+  pub predicted_answer: String,
 }
-impl Display for ParseProblemError {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    match self {
-      Self::Einstein(ref x) => write!(f, "ParseProblemError::Einstein({})", x),
-      Self::Empty(ref x) => write!(f, "ParseProblemError::Empty({})", x),
-    }
-  }
-}
-impl Error for ParseProblemError {}
