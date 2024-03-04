@@ -32,3 +32,16 @@ export const generate = async (options?: { system?: string, prompt?: string }) =
     })
   }) as NoStreamResponse
 }
+export const embeddings = async (options: { model?: string, prompt: string }) => {
+  const { model = env.OLLAMA_EMBEDDING_MODEL, prompt } = options;
+
+  return await req("/api/embeddings", {
+    method: "POST",
+    body: JSON.stringify({
+      model,
+      prompt,
+    })
+  }) as {
+    embedding: number[],
+  };
+}
