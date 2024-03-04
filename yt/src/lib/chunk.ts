@@ -1,8 +1,7 @@
 export const splitToChunks = (content: string, size = 1024, padding = 4) => {
   const lines: { text: string, byteLength: number }[] = [];
   const encoder = new TextEncoder();
-  for (const m of content.matchAll(/(?<=^\s*)\S.*?(?=\s*$)/gm)) {
-    const line = m[0]
+  for (const line of content.split(/(?<=\b\.)\s+/g)) {
     const byteLength = encoder.encode(line).byteLength;
     lines.push({
       text: line,

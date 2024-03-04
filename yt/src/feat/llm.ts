@@ -38,3 +38,8 @@ export const mapReduce = async (chunks: string[], limit = 3): Promise<string> =>
   const splittedChunks = splitToChunks(mappedChunks.map(x => unmd(x)).join(" "), 1024);
   return await mapReduce(splittedChunks, limit);
 }
+export const answer = async (context: string, question: string) => {
+  const system = "Let's first understand the question, extract the paragraph that best suits for the question, and make a plan. Then, let's carry out the plan step by step, and qoute the best suits sentence.";
+  const user = `${context}\nquestion: ${question}`;
+  return unmd(await autoInfer(system, user));
+}

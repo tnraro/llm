@@ -16,5 +16,5 @@ export const postRecognizeSpeech = async (input: string, output: string) => {
   const text = await file(input).text();
   await write(output, [...text
     .replaceAll(/\[[^\]]+?\]|\([^)]+?\)/g, "")
-    .matchAll(/(?<=^\s*)\S.*?(?=\s*$)/gm)].join("\n"));
+    .matchAll(/(?<=^\s*)\S.*?(?=\s*$)/gm)].join(" "));
 }
