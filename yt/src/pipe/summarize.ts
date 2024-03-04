@@ -1,3 +1,3 @@
 import { infer } from "./infer";
 
-export const summarize = infer(`You have a bunch of documents. Can you tell me what the main ideas running through all of them are?`);
+export const summarize = infer(`Summarize the paragraph and extract some key points.`);

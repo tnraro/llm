@@ -6,6 +6,7 @@ import { summarize } from "./pipe/summarize";
 import { print } from "./pipe/print";
 import { asr } from "./pipe/answer";
 import { dlts } from "./pipe/ts";
+import { mr } from "./pipe/map-reduce";
 
 const cli = async (command: string, ...options: string[]) => {
   switch (command) {
@@ -40,8 +41,8 @@ const cli = async (command: string, ...options: string[]) => {
       createPipe({ content: "" } as { content: string | string[] })
         .pipe(
           dlts(link),
-          // sp2ck(1024),
-          // summarize,
+          sp2ck(2048),
+          mr,
           print,
         )
       return;
