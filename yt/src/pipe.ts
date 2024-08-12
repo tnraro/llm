@@ -1,20 +1,26 @@
-export const createPipe = <Context>(context: Context) => {
-  type Pipe = (context: Context) => Promise<Partial<Context>> | Partial<Context> | void;
-  const pipe = async (...ps: Pipe[]) => {
-    for (const p of ps) {
+class Pipe<Context> {
+  context: Context;
+  fns: ((context: any) => any)[] = []
+  constructor(context: Context) {
+    this.context = context;
+  }
+  use<R>(fn: (context: Context) => R): Pipe<Awaited<R>> {
+    this.fns.push(fn);
+    return this as unknown as Pipe<Awaited<R>>
+  }
+  async run() {
+    for (const fn of this.fns) {
       try {
-        context = {
-          ...context,
-          ...await p(context),
-        }
+        this.context = await fn(this.context);
       } catch (error) {
         console.error("pipe error:", error);
         break;
       }
     }
+    return this.context;
   }
-  return {
-    context,
-    pipe,
-  }
+}
+
+export const createContext = () => {
+  return new Pipe({ context: "" });
 }

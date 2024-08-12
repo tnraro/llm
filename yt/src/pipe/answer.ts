@@ -1,9 +1,3 @@
-import { answer, autoInfer } from "../feat/llm";
+import { answer } from "../feat/llm";
 
-export const asr = (question: string) => {
-  return async ({ content }: { content: string | string[] }) => {
-    return {
-      content: await answer(question, content as string),
-    }
-  }
-}
+export const asr = (question: string) => async (content: string | string[]) => await answer(content, question)

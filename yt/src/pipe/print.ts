@@ -1,3 +1,4 @@
-export const print = ({ content }: { content: string | string[] }) => {
-  console.log(content);
+export const print = <C>(context: C) => {
+  console.log(context);
+  return context;
 }

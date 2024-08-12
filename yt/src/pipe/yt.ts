@@ -31,9 +31,7 @@ export const dlyt = (link: string) => {
         await postRecognizeSpeech(wavTxt, txt);
     }
     if (await exists(txt)) {
-      return {
-        content: await file(txt).text(),
-      }
+      return await file(txt).text()
     }
     throw new Error("no txt");
   }

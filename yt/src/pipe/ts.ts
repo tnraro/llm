@@ -22,9 +22,7 @@ export const dlts = (m3uLink: string) => {
     if (!await cache(txt, wavTxt))
       await postRecognizeSpeech(wavTxt, txt);
     if (await exists(txt)) {
-      return {
-        content: await file(txt).text(),
-      }
+      return await file(txt).text()
     }
     throw new Error("no txt");
   }
