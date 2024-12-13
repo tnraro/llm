@@ -7,7 +7,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-transformers = {extras = ["torch"], version = "^4.37.2"}
+transformers = {extras = ["torch"], version = "^4.38.0"}
 onnxruntime = "<1.16.0"
 optimum = "^1.16.2"
 onnx = "^1.15.0"
